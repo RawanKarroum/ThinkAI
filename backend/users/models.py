@@ -9,3 +9,6 @@ class Users(AbstractSoftDeleteModel, AbstractUser):
     )
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+
+    class Meta:
+        db_table = 'users'
