@@ -11,18 +11,24 @@ class CoursesSerializer(serializers.ModelSerializer):
         
         fields = [
         'id',
-        'name',
+        'title',
         'description',
         'teacher',
         ]
-        read_only_fields = ['teacher', 'students']
+        # read_only_fields = ['teacher', 'students']
 
     def validate(self, attrs):
         """
         Check if the teacher is a teacher
         """
-        if not attrs.get('teacher').role == 'teacher':
-            raise serializers.ValidationError({'teacher': "Teacher must be a teacher."})
+        teacher = attrs.get('teacher')
+
+        if teacher is None:
+            raise serializers.ValidationError({'teacher': "Teacher field is required."})
+
+        if not hasattr(teacher, 'role') or teacher.role != 'teacher':
+            raise serializers.ValidationError({'teacher': "Teacher must have the role 'teacher'."})
+
         return attrs
 
     def create(self, validated_data):
