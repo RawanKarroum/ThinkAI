@@ -27,15 +27,32 @@ class Auth0JSONWebTokenAuthentication(BaseAuthentication):
             if "read:protected" not in permissions:
                 print("🚨 User lacks the required 'read:protected' permission.")
                 raise AuthenticationFailed("Permission denied.")
+            
+            user_metadata = payload.get("https://thinkai-api/user_metadata", {})
 
             sub = payload.get("sub")  
-            email = payload.get("email", f"{sub}@auth0.com") 
+            email = payload.get("email") 
             role = payload.get("https://thinkai-api/role", "student") 
 
+            first_name = user_metadata.get("first_name", "").strip()
+            last_name = user_metadata.get("last_name", "").strip()
+
+            if not email:
+                email = f"{sub}@auth0.com" 
+
             user, created = User.objects.get_or_create(
-                username=sub,
-                defaults={"email": email, "role": role}
+                email=email,  
+                defaults={"auth0_id": sub, 
+                          "username": sub, 
+                          "role": role,
+                            "first_name": first_name,
+                            "last_name": last_name
+                          }
             )
+
+            if not user.auth0_id:
+                user.auth0_id = sub
+                user.save()
 
             user.jwt_payload = payload  
             return (user, None)
@@ -43,6 +60,7 @@ class Auth0JSONWebTokenAuthentication(BaseAuthentication):
         except AuthenticationFailed as e:
             print(f"🚨 Authentication error: {e}")
             raise AuthenticationFailed(str(e))
+
 
     def decode_auth0_token(self, token):
         """Decode and verify the JWT token using Auth0's JWKS."""
