@@ -26,8 +26,10 @@ class PDFDocumentSerializer(serializers.ModelSerializer):
         if not obj.file:
             return None
         
+        s3_key = f"pdfs/{obj.file.name}" 
+
         print(f"DEBUG - AWS_S3_BUCKET: {settings.AWS_STORAGE_BUCKET_NAME}")
-        print(f"DEBUG - File Path: {obj.file}")
+        print(f"DEBUG - Corrected File Key: {s3_key}")  
 
         s3_client = boto3.client(
             's3',
@@ -38,9 +40,11 @@ class PDFDocumentSerializer(serializers.ModelSerializer):
 
         presigned_url = s3_client.generate_presigned_url(
             'get_object',
-            Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME, 'Key': str(obj.file)},
+            Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME, 'Key': s3_key},
             ExpiresIn=3600  
         )
+
+        print(f"DEBUG - Corrected Presigned URL: {presigned_url}")
 
         return presigned_url
 
