@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import PDFDocument
 from django.conf import settings
 import boto3
+from adaptive_learning.utils.s3_utils import generate_presigned_url
 
 class PDFDocumentSerializer(serializers.ModelSerializer):
     """
@@ -28,25 +29,7 @@ class PDFDocumentSerializer(serializers.ModelSerializer):
         
         s3_key = f"pdfs/{obj.file.name}" 
 
-        print(f"DEBUG - AWS_S3_BUCKET: {settings.AWS_STORAGE_BUCKET_NAME}")
-        print(f"DEBUG - Corrected File Key: {s3_key}")  
-
-        s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY,
-            aws_secret_access_key=settings.AWS_SECRET_KEY,
-            region_name=settings.AWS_REGION
-        )
-
-        presigned_url = s3_client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME, 'Key': s3_key},
-            ExpiresIn=3600  
-        )
-
-        print(f"DEBUG - Corrected Presigned URL: {presigned_url}")
-
-        return presigned_url
+        return generate_presigned_url(s3_key)
 
     def validate(self, attrs):
         """
