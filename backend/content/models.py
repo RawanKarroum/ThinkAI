@@ -4,7 +4,7 @@ from adaptive_learning.storages import PDFStorage
 from AbstractSoftDelete.models import AbstractSoftDeleteModel
 import boto3
 from courses.models import Courses
-from adaptive_learning.utils.s3_utils import generate_presigned_url
+from adaptive_learning.utils.s3_utils import generate_presigned_url, extract_text_from_s3
 
 class PDFDocument(AbstractSoftDeleteModel):
     title = models.CharField(max_length=255)
@@ -37,5 +37,14 @@ class PDFDocument(AbstractSoftDeleteModel):
         super().save(*args, **kwargs) 
 
         if self.file:
+            #generate s3 url
             self.file_url = self.generate_presigned_url()
-            super().save(update_fields=['file_url']) 
+
+            #extract text from pdf stored in s3
+            pdf_url = self.file_url
+            extracted_text = extract_text_from_s3(pdf_url)
+
+            if extracted_text:
+                self.extracted_text = extracted_text
+
+            super().save(update_fields=['file_url', 'extracted_text']) 
