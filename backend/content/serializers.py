@@ -18,6 +18,7 @@ class PDFDocumentSerializer(serializers.ModelSerializer):
             'title',
             'file',
             'file_url',
+            'extracted_text',
         ]
 
     def get_file_url(self, obj):

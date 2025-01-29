@@ -13,6 +13,7 @@ class QuizzesSerializer(serializers.ModelSerializer):
         'id',
         'title',
         'course',
+        'pdf',
         ]
 
     def validate(self, attrs):
