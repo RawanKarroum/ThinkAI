@@ -15,18 +15,27 @@ export async function saveUserToBackend(
     user: Auth0User | null,
     getAccessTokenSilently: () => Promise<string>
 ): Promise<void> {
-    if(!user) return;
+    if (!user) {
+        console.log("❌ No user provided. Exiting saveUserToBackend.");
+        return;
+    }
+
+    console.log("📡 Preparing to send request to backend. User Data:", user);
 
     const userMetadata = user["https://thinkai-api/user_metadata"] || {};
 
-    try{
+    try {
         const token = await getAccessTokenSilently();
+        console.log("🔑 Got Auth0 Token:", token);
+
         const requestData = {
-            auth0_id: user.sub, 
+            auth0_id: user.sub,
             first_name: userMetadata.first_name || user.given_name || '',
             last_name: userMetadata.last_name || user.family_name || '',
-            email: user.email, 
+            email: user.email,
         };
+
+        console.log("📡 Sending request with data:", requestData);
 
         const response = await fetch('http://127.0.0.1:8000/api/users/save/', {
             method: "POST",
@@ -37,12 +46,17 @@ export async function saveUserToBackend(
             body: JSON.stringify(requestData),
         });
 
-        if(!response.ok){
-            throw new Error("API request failed with status ${response.status}");
+        console.log("📡 Response Status:", response.status);
+
+        const data = await response.json();
+        console.log("📡 Response Data:", data);
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
         }
 
-        console.log("User saved to backend")
-    } catch (error){
-    console.error("Error saving user:", error);
+        console.log("✅ User saved successfully!");
+    } catch (error) {
+        console.error("❌ Error saving user:", error);
     }
 }
