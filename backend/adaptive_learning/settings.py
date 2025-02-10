@@ -34,7 +34,7 @@ DEBUG = True
 # ALLOWED_HOSTS = ["3.128.32.122", "localhost", "127.0.0.1", "3.138.178.219", "13.59.154.68", "3.144.176.97"]
 ALLOWED_HOSTS = ["*"]
 
-print(f"🚀 ALLOWED_HOSTS: {ALLOWED_HOSTS}")  # <-- Add this to confirm
+print(f"🚀 ALLOWED_HOSTS: {ALLOWED_HOSTS}") 
 
 AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
 AUTH0_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
