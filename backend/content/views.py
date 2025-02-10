@@ -27,3 +27,18 @@ class UploadPDFView(APIView):
         
         print("Serializer Errors:", file_serializer.errors)
         return Response(file_serializer.errors, status=400)
+    
+class GetExtractedTextView(APIView):
+    """
+    API to fetch the exracted text from a PDF document
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, pdf_id):
+        try:
+            pdf_doc = PDFDocument.objects.get(id=pdf_id)
+            serializer = PDFDocumentSerializer(pdf_doc)
+            return Response(serializer.data, status=200)
+        except PDFDocument.DoesNotExist:
+            return Response({"message": "PDF Document not found"}, status=404)
+        

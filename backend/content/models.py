@@ -3,11 +3,15 @@ from django.conf import settings
 from adaptive_learning.storages import PDFStorage
 from AbstractSoftDelete.models import AbstractSoftDeleteModel
 import boto3
+from courses.models import Courses
+from adaptive_learning.utils.s3_utils import generate_presigned_url, extract_text_from_s3
 
 class PDFDocument(AbstractSoftDeleteModel):
     title = models.CharField(max_length=255)
     file = models.FileField(storage=PDFStorage(), upload_to='')  
     file_url = models.URLField(blank=True, null=True, max_length=1000) 
+    course = models.ForeignKey(Courses , on_delete=models.CASCADE, null=True, blank=True) 
+    extracted_text = models.TextField(blank=True, null=True)   
 
     class Meta:
         db_table = 'pdf_documents'
@@ -22,21 +26,9 @@ class PDFDocument(AbstractSoftDeleteModel):
         if not self.file:
             return None
 
-        s3_key = f"pdfs/{self.file.name}"  
-        s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY,
-            aws_secret_access_key=settings.AWS_SECRET_KEY,
-            region_name=settings.AWS_REGION
-        )
+        s3_key = f"pdfs/{self.file.name}"
 
-        presigned_url = s3_client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME, 'Key': s3_key},
-            ExpiresIn=3600 
-        )
-
-        return presigned_url
+        return generate_presigned_url(s3_key)
 
     def save(self, *args, **kwargs):
         """
@@ -45,5 +37,14 @@ class PDFDocument(AbstractSoftDeleteModel):
         super().save(*args, **kwargs) 
 
         if self.file:
+            #generate s3 url
             self.file_url = self.generate_presigned_url()
-            super().save(update_fields=['file_url']) 
+
+            #extract text from pdf stored in s3
+            pdf_url = self.file_url
+            extracted_text = extract_text_from_s3(pdf_url)
+
+            if extracted_text:
+                self.extracted_text = extracted_text
+
+            super().save(update_fields=['file_url', 'extracted_text']) 
