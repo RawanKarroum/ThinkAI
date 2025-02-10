@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["52.91.170.12"]
 
 AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
 AUTH0_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
@@ -73,6 +73,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'adaptive_learning.urls'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 AUTH_USER_MODEL = 'users.Users'
 
