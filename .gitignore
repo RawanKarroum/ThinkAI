@@ -1,3 +1,18 @@
 .env
 .venv
+venv/
+.venv/
 backup.json
+__pycache__/
+__pycache__/*
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local IDE configurations
+.vscode/
+.idea/
+
+# Ignore OS-specific files
+.DS_Store
+ 

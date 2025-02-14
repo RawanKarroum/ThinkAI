@@ -10,7 +10,9 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
+from mangum import Mangum
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'adaptive_learning.settings')
 
 application = get_wsgi_application()
+lambda_handler = Mangum(application)

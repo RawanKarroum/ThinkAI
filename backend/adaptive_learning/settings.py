@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["52.91.170.12"]
+ALLOWED_HOSTS = ["*"]
 
 AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
 AUTH0_AUDIENCE = os.getenv('AUTH0_AUDIENCE')
@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'users',
     'quizzes',
     'content',
+    'zappa'
 ]
 
 MIDDLEWARE = [
