@@ -32,6 +32,25 @@ class ProtectedView(APIView):
             "role": user.role
         })
     
+class GetUserRoleView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            auth0_id = request.data.get("auth0_id")
+            if not auth0_id:
+                return Response({"error": "Auth0 ID is required"}, status=400)
+            
+            user = User.objects.filter(auth0_id=auth0_id).first()
+            if not user:
+                    return Response({"error": "User not found"}, status=400)
+            
+            return Response({"role": user.role}, status=200)
+        
+        except Exception as e:
+            print("❌ Error fetching user role:", str(e))
+            return Response({"error": str(e)}, status=400)
+    
 class SaveUserView(APIView):
     permission_classes = [AllowAny]  
 

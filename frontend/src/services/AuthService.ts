@@ -61,3 +61,24 @@ export async function saveUserToBackend(
         console.error("❌ Error saving user:", error);
     }
 }
+
+export async function fetchUserRole(auth0Id: string): Promise<string | null>{
+    try{
+        const response = await fetch('http://127.0.0.1:8000/api/users/get-role', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({auth0_id: auth0Id})
+        });
+
+        if(!response.ok){
+            throw new Error(`Failed to fetch user role, status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("✅ User role fetched:", data.role);
+        return data.role || null;
+    } catch (error){
+        console.error("❌ Error fetching user role:", error);
+        return null;
+    }
+}
